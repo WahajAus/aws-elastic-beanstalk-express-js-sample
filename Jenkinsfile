@@ -11,11 +11,11 @@ pipeline {
                 sh 'npm install --save'
                 echo 'Installing Finished'
 
-                sh 'npm install snyk --save-dev'
-                echo 'Snyk Installation completed'
+                sh 'npm install -g snyk' 
+                echo 'Snyk Installation completed globally'
 
                 withCredentials([string(credentialsId: 'snyk_token', variable: 'SNYK_TOKEN')]) {
-                    sh './node_modules/.bin/snyk auth $SNYK_TOKEN'
+                    sh 'snyk auth $SNYK_TOKEN'
                     echo 'Snyk Authentication Completed'
                 }
             }
