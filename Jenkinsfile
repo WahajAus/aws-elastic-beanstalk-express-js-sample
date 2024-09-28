@@ -11,18 +11,27 @@ pipeline {
                 sh 'npm install --save'
                 echo 'Installing Finished'
 
-                sh 'npm install -g snyk' 
-                echo 'Snyk Installation completed globally'
+                sh 'npm install snyk --save-dev'
+                echo 'Snyk Installation completed'
 
                 withCredentials([string(credentialsId: 'snyk_token', variable: 'SNYK_TOKEN')]) {
-                    sh 'snyk auth $SNYK_TOKEN'
+                    sh './node_modules/.bin/snyk auth $SNYK_TOKEN' 
                     echo 'Snyk Authentication Completed'
                 }
             }
         }
+
         stage('Snyk Security Scan Phase') {
             steps {
-                sh 'snyk test'
+                script {
+                    def snykResults = sh(script: './node_modules/.bin/snyk test --json', returnStdout: true)
+                    def jsonResults = readJSON(text: snykResults)
+                    if (jsonResults.vulnerabilities.any { it.severity == 'critical' }) {
+                        error("Vulnerabilities found! Check snyk-report.json.")
+                    } else {
+                        writeFile file: 'snyk-report.json', text: snykResults
+                    }
+                }
                 echo 'Security Scan Completed'
             }
             post {
@@ -35,6 +44,7 @@ pipeline {
             }
         }
     }
+
     post {
         always {
             echo 'Pipeline Completed.'
