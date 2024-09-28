@@ -20,12 +20,7 @@ pipeline {
                 }
             }
         }
-        stage('Build') {
-            steps {
-                sh 'npm run build'
-                echo 'Build Phase Completed'
-            }
-        }
+
         stage('Test') {
             steps {
                 sh 'npm test'
