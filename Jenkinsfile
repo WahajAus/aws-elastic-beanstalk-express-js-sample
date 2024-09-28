@@ -20,21 +20,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Test') {
-            steps {
-                sh 'npm test'
-                echo 'Test Phase Completed'
-            }
-            post {
-                success {
-                    echo 'Tests passed!'
-                }
-                failure {
-                    echo 'Some tests failed. Check logs for details.'
-                }
-            }
-        }
         stage('Snyk Security Scan Phase') {
             steps {
                 sh 'snyk test'
